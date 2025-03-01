@@ -348,4 +348,7 @@ components:
       type: string
       description: Ссылка на иконку
       example: "https://test-alfa-mobile.alfabank.ru/mobile/s3/static/55.png"            
-    
+    ApiErrorDto18:
+      type: string
+      example: abc1
+      description: Описание события

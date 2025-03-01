@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: From GITHUB8 mnp-claim-api
+  title: From GITHUB9 mnp-claim-api
   description: Сервис для работы с заявками на перенос номера (MNP-заявками)234234324
   version: 1.0.
 paths:

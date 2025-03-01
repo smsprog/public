@@ -1,2 +1,4 @@
 /main/2.yml
   Cache-Control: max-age=60
+2.yml
+  Cache-Control: max-age=60

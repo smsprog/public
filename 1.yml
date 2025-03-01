@@ -1,0 +1,321 @@
+ openapi: 3.0.3
+info:
+  title: From GITHUB: mnp-claim-api
+  description: Сервис для работы с заявками на перенос номера (MNP-заявками)
+  version: 1.0.
+paths:
+  /internal/claim-drafts/attributes:
+    patch:
+      tags:
+        - Управление атрибутами MNP-заявок
+      summary: Управление отображением MNP-заявки (смена видимости, статус черновика заявки)
+      description: |-
+        Алгоритм работы см. в <a href="https://confluence.moscow.alfaintra.net/pages/viewpage.action?pageId=2018909880">Метод PATCH contracts/{contractId}/mnp-claims</a>
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'https://confluence.moscow.alfaintra.net/download/attachments/2168094202/1.yml?api=v2#/components/schemas/mnpClaimDto'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: 'https://confluence.moscow.alfaintra.net/download/attachments/2168094202/1.yml?api=v2#/components/schemas/mnpClaimDto'
+        '400':
+          description: Bad Request
+
+
+components:
+  schemas:
+    mnpState:
+          description: Модель состояний MNP-заявки
+          type: array
+          items:
+            type: object
+            required:
+              - code
+              - name 
+              - description
+              - icon
+            properties:
+              code:
+                type: string
+                description: Код состояния
+                example: "Confirmation"
+              order:
+                type: integer
+                description: Порядковый номер состояния
+              name:
+                type: string
+                description: Имя состояния
+                example: "Проверка данных"
+              description:
+                type: string
+                description: Описание состояния - длительность
+                example: "до 3 дней"
+              bssStates:
+                type: array
+                items: 
+                  type: string
+                description: эквивалентные состояния билинга
+                example: ['DonorConfirmAwaiting','DonorAcceptAwaiting','DonorInfoReceived']
+              icon:
+                $ref: '#/components/schemas/Icon'
+    mnpStates:
+          description: Модель состояний MNP-заявки
+          type: array
+          items:
+            $ref: '#/components/schemas/mnpState'
+          example: |-
+                  [
+                    {
+                      "code": "Confirmation",
+                      "order": 2,
+                      "name": "Проверка данных",
+                      "description": "до 3 дней",
+                      "bssStates": [
+                        "DonorConfirmAwaiting",
+                        "DonorAcceptAwaiting"
+                      ],
+                      "icon": "https://test-alfa-mobile.alfabank.ru/mobile/s3/static/55.png"
+                    },
+                    {
+                      "code": "TransferAwaiting",
+                      "order": 3,
+                      "name": "Ожидание переноса",
+                      "description": "до 5 дней",
+                      "bssStates": [
+                        "DonorAccepted",
+                        "CompleteAwaiting"
+                      ],
+                      "icon": "https://test-alfa-mobile.alfabank.ru/mobile/s3/static/66.png"
+                    },
+                    {
+                      "code": "Rejected",
+                      "order": 0,
+                      "name": "Возникла ошибка",
+                      "description": "",
+                      "bssStates": [
+                        "DonorCancelled",
+                        "RecipientCancelled",
+                        "DonorRejected"
+                      ],
+                      "icon": "https://test-alfa-mobile.alfabank.ru/mobile/s3/static/err.png"
+                    }, 
+                    {
+                      "code": "Error",
+                      "order": 0,
+                      "name": "Возникла ошибка", 
+                      "description": "",
+                      "bssStates": [
+                        "DonorInfoReceived"
+                      ],
+                      "icon": "https://test-alfa-mobile.alfabank.ru/mobile/s3/static/err.png"
+                    } 
+                  ]
+    mnpInfoResponse:
+      type: object
+      properties:
+        mnpStatus:
+          type: string
+          description: Статус возможности переноса номера
+          enum:
+            - AVAILABLE
+            - MNP_PROCESSING
+            - OPERATOR_ALFA
+            - REGION_INACTIVE
+        operator:
+          type: object
+          nullable: true
+          description: Информация об операторе, к которому привязан номер
+          properties:
+            code:
+              type: string
+              description: Код оператора
+              example: TE2
+            name:
+              type: string
+              description: Название оператора
+              example: TELE2
+            imageUrl:   
+              type: string
+              description:  Иконка оператора
+              example: https://click.alfabank.ru/logo_tele.png
+        region:
+          type: object
+          nullable: true
+          description: Информация о регионе, связанном с номером
+          properties:
+            code:
+              type: string
+              description: Код региона
+              example: 77
+            name:
+              type: string
+              description: Название региона
+              example: г.Москва и Московская область
+      required:
+        - mnpStatus
+    signResponse:
+      type: object
+      properties:
+        appId:
+          type: string
+          example: CZSTEF2025011500455
+          description: ID заявки
+        signMethod:
+          type: string
+          example: SMS
+          description: ID заявки
+        signAppId:
+          type: string
+          example: CH22_PIL_EKK_cab18bf2fd6a4b3bb233234e75c0e5de
+          description: ID заявки в SignOnline
+      required:
+        - appId
+        - signMethod
+
+    applicationDto:
+        description: Данные MNP-заявок
+        type: object
+        required:
+        - claimId
+        - currentStateCode
+        - icon
+        - transferDate
+        - msisdn
+        - allStates
+        properties:
+          claimId:
+            type: string
+            example: mnp_claim_123
+            description: Идентификатор заявки
+          currentStateCode:
+            type: string
+            description: Текущее состояние состояния
+            example: "Processing"
+          icon:
+            $ref: '#/components/schemas/Icon'
+          transferDate:
+            type: string
+            format: date-time
+            example: '2024-08-21T17:21:47Z'
+            description: Дата и время переноса номера
+          msisdn:
+            $ref: '#/components/schemas/Msisdn'
+          allStates:
+            $ref: '#/components/schemas/mnpState'
+          rejectCode:
+            type: string
+            example: 7012
+            description: Код причины отклонения заявки 
+          message:
+            type: string
+            example: 'Данные не совпадают с оператором'
+            description: Причина отклонения заявки
+          recommendation:
+            type: string
+            example: 'Пожалуйста, актуализируйте данные у вашего оператора'
+            description: Рекомендации по исправлению отклонения заявки 
+          action:
+            type: string
+            example: 'restart'
+            description: Возможен ли перезапуск заявки 
+        example: |-
+          {
+            "claimId": "mnp_claim_123",
+            "currentStateCode": "Processing",
+            "icon": "https://test-alfa-mobile.alfabank.ru/mobile/s3/static/gifts/3.png",
+            "transferDate": "2024-08-21T17:21:47Z",
+            "msisdn": "79088474394",
+            "allStates": [
+              {
+                "code": "Processing",
+                "order": 1,
+                "name": "Обработка заявки",
+                "description": "До 2 дней",
+                "icon": "https://test-alfa-mobile.alfabank.ru/mobile/s3/static/gifts/1.png"
+              },
+              {
+                "code": "Confirmation",
+                "order": 2,
+                "name": "Проверка данных",
+                "description": "До 3 дней",
+                "icon": "https://test-alfa-mobile.alfabank.ru/mobile/s3/static/gifts/2.png"
+              },
+              {
+                "code": "TransferAwaiting",
+                "order": 3,
+                "name": "Ожидание переноса",
+                "description": "11 ноября 12:00",
+                "icon": "https://test-alfa-mobile.alfabank.ru/mobile/s3/static/gifts/3.png"
+              },
+              {
+                "code": "CompletedSuccess",
+                "order": 4,
+                "name": "Номер перенесен",
+                "description": "Можете пользоваться",
+                "icon": "https://test-alfa-mobile.alfabank.ru/mobile/s3/static/gifts/4.png"
+              },
+              {
+                "code": "Rejected",
+                "order": 0,
+                "name": "Возникла ошибка",
+                "description": "",
+                "icon": "https://test-alfa-mobile.alfabank.ru/mobile/s3/static/gifts/0.png"
+              } 
+            ],
+            "message": "Данные не совпадают с оператором",
+            "recommendation": "Пожалуйста, актуализируйте данные у вашего оператора",
+            "action": "restart"
+          }
+
+
+    ApiErrorDto:
+      type: object
+      properties:
+        traceId:
+          type: string
+          description: traceId лога в Kibana
+        message:
+          type: string
+          description: Описание события
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        error_code:
+          type: string
+          enum: 
+            - REGION_INACTIVE
+            - OPERATOR_ALFA
+            - MNP_PROCESSING
+          example: "REGION_INACTIVE"
+          description: Код ошибки валидации
+        region:
+         type: object
+         description: Информация о регионе, связанном с ошибкой
+         properties:
+          code:
+           type: string
+           example: "12"
+           description: Код региона
+          name:
+           type: string
+           example: "Республика Марий Эл"
+           description: Название региона  
+      required:
+        - error_code
+        
+    Msisdn:
+      type: string
+      maxLength: 128
+      example: 79998887766
+      description: Номер телефона абонента
+    Icon:
+      type: string
+      description: Ссылка на иконку
+      example: "https://test-alfa-mobile.alfabank.ru/mobile/s3/static/55.png"            
+    

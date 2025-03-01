@@ -303,6 +303,16 @@ components:
           type: string
           description: Описание события
 
+    ApiErrorDto17:
+      type: object
+      properties:
+        traceId17:
+          type: string
+          description: traceId лога в Kibana
+        message17:
+          type: string
+          description: Описание события
+
     ValidationErrorResponse:
       type: object
       properties:

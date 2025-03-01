@@ -350,5 +350,5 @@ components:
       example: "https://test-alfa-mobile.alfabank.ru/mobile/s3/static/55.png"            
     ApiErrorDto18:
       type: string
-      example: abc1233242344447878776867876
+      example: 8888
       description: Описание события

@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: From GITHUB4 mnp-claim-api
-  description: Сервис для работы с заявками на перенос номера (MNP-заявками)
+  description: Сервис для работы с заявками на перенос номера (MNP-заявками)234234324
   version: 1.0.
 paths:
   /internal/claim-drafts/attributes:
@@ -25,7 +25,27 @@ paths:
                 $ref: 'https://confluence.moscow.alfaintra.net/download/attachments/2168094202/1.yml?api=v2#/components/schemas/mnpClaimDto'
         '400':
           description: Bad Request
-
+  /internal/claim-drafts/attributes2:
+    patch:
+      tags:
+        - Управление атрибутами MNP-заявок
+      summary: Управление отображением MNP-заявки (смена видимости, статус черновика заявки)
+      description: |-
+        Алгоритм работы см. в <a href="https://confluence.moscow.alfaintra.net/pages/viewpage.action?pageId=2018909880">Метод PATCH contracts/{contractId}/mnp-claims</a>
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'https://confluence.moscow.alfaintra.net/download/attachments/2168094202/1.yml?api=v2#/components/schemas/mnpClaimDto'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: 'https://confluence.moscow.alfaintra.net/download/attachments/2168094202/1.yml?api=v2#/components/schemas/mnpClaimDto'
+        '400':
+          description: Bad Request
 
 components:
   schemas:
